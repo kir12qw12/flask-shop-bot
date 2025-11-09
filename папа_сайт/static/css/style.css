@@ -1,0 +1,53 @@
+/* Фон сайта */
+.background-overlay {
+    background: url('../images/bg.png') no-repeat center center fixed;
+    background-size: cover;
+    min-height: 100vh;
+}
+
+/* Тень для карточек */
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+}
+
+/* Заголовки и текст */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Arial', sans-serif;
+}
+
+.card-title {
+    font-size: 1.25rem;
+}
+
+/* Кнопки */
+.btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+/* Модалки */
+.modal-content {
+    border-radius: 10px;
+}
+
+/* Формы */
+.form-control {
+    border-radius: 5px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .card-title {
+        font-size: 1.1rem;
+    }
+}
