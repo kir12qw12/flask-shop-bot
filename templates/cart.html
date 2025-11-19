@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Корзина</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body class="text-light">
+
+<div class="background-overlay">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-black bg-opacity-75 shadow-sm">
+    <div class="container d-flex justify-content-between">
+      <a class="navbar-brand fw-bold text-warning" href="/">RuslanBBQ</a>
+      <a href="/" class="btn btn-outline-warning">Главная</a>
+    </div>
+  </nav>
+
+  <div class="container py-5">
+    <h1 class="text-center mb-4 text-warning">Ваша корзина</h1>
+
+    <div id="cartItems" class="row g-4"></div>
+
+    <div class="text-center mt-4">
+      <h4 id="totalPrice" class="text-light mb-3"></h4>
+      <button class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#orderModal">Заказать всё</button>
+    </div>
+  </div>
+</div>
+
+<!-- Модалка оформления заказа -->
+<div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark text-light border-warning">
+      <div class="modal-header border-warning">
+        <h5 class="modal-title text-warning">Оформление заказа</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="orderForm">
+          <div class="mb-3">
+            <label class="form-label text-light">Ваше имя</label>
+            <input type="text" class="form-control bg-dark text-light border-warning" id="name" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-light">Телефон</label>
+            <input type="text" class="form-control bg-dark text-light border-warning" id="phone" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-light">Комментарий</label>
+            <textarea class="form-control bg-dark text-light border-warning" id="comment" rows="2"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer border-warning">
+        <button type="button" class="btn btn-outline-warning" data-bs-dismiss="modal">Отмена</button>
+        <button type="button" class="btn btn-success" onclick="submitOrder()">Отправить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+async function renderCart(){
+  const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+  const container = document.getElementById('cartItems');
+  const totalPriceEl = document.getElementById('totalPrice');
+  container.innerHTML = '';
+
+  if(cart.length === 0){
+    container.innerHTML = '<div class="alert alert-warning text-center">Корзина пуста</div>';
+    totalPriceEl.textContent = '';
+    return;
+  }
+
+  let total = 0;
+
+  for(const item of cart){
+    const res = await fetch(`/api/product_info/${item.product_id}`);
+    const product = await res.json();
+
+    const itemTotal = (product.price_per_100 * (item.weight / 100)) * item.quantity;
+    total += itemTotal;
+
+    const div = document.createElement('div');
+    div.className = 'col-md-6';
+    div.innerHTML = `
+      <div class="card text-bg-dark border-warning bg-opacity-75 h-100 p-3 d-flex flex-row align-items-center justify-content-between">
+        <div>
+          <h5 class="text-warning">${product.name}</h5>
+          <p class="text-light">Вес: ${item.weight} г | Цена: ${product.price_per_100} ₽/100г</p>
+          <p class="text-light">Кол-во: ${item.quantity}</p>
+          <p class="text-light">Итого: ${itemTotal.toFixed(2)} ₽</p>
+        </div>
+        <button class="btn btn-outline-danger" onclick="removeFromCart(${item.product_id}, ${item.weight})">-</button>
+      </div>
+    `;
+    container.appendChild(div);
+  }
+
+  totalPriceEl.textContent = `Общая сумма заказа: ${total.toFixed(2)} ₽`;
+}
+
+function removeFromCart(product_id, weight){
+  let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+  cart = cart.filter(i => !(i.product_id==product_id && i.weight==weight));
+  localStorage.setItem('cart', JSON.stringify(cart));
+  renderCart();
+}
+
+async function submitOrder(){
+  const name = document.getElementById('name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const comment = document.getElementById('comment').value.trim();
+  const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+
+  if(!name || !phone){
+    alert('❗ Введите имя и телефон!');
+    return;
+  }
+
+  for(const item of cart){
+    for(let i=0; i<item.quantity; i++){
+      await fetch('/api/order', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          product_id: item.product_id,
+          weight: item.weight,
+          name,
+          phone,
+          comment
+        })
+      });
+    }
+  }
+
+  localStorage.removeItem('cart');
+  alert('✅ Все заказы успешно отправлены!');
+  renderCart();
+
+  const modal = bootstrap.Modal.getInstance(document.getElementById('orderModal'));
+  modal.hide();
+}
+
+renderCart();
+</script>
+</body>
+</html>

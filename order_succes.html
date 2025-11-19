@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Заказ отправлен</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Спасибо за заказ!</h1>
+    <p>Ваш заказ на товар <strong>{{ product[1] }}</strong> успешно отправлен.</p>
+    <p>Мы свяжемся с вами по телефону.</p>
+    <a href="{{ url_for('index') }}">Вернуться на главную</a>
+</body>
+</html>

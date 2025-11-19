@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RuslanBBQ — Наши товары</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body class="text-light bg-dark">
+
+<div class="background-overlay">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-black bg-opacity-75 shadow-sm">
+    <div class="container d-flex justify-content-between">
+      <a class="navbar-brand fw-bold text-warning" href="/">RuslanBBQ</a>
+      <div>
+        <button class="btn btn-outline-warning me-2" onclick="openReview()">Оставить отзыв</button>
+        <a href="/reviews" class="btn btn-warning me-2">Посмотреть отзывы</a>
+        <a href="/cart" class="btn btn-success">Корзина</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-5">
+    <h1 class="text-center mb-4 text-warning">Наши товары</h1>
+    <div class="row g-4">
+      {% for p in products %}
+      <div class="col-md-4">
+        <div class="card text-bg-dark border-warning bg-opacity-75 h-100">
+          <a href="{{ url_for('product_page', pid=p.id) }}" class="text-decoration-none text-light">
+            {% if p.photos %}
+              <img src="{{ p.photos[0] }}" class="card-img-top" alt="{{ p.name }}">
+            {% endif %}
+            <div class="card-body">
+              <h5 class="card-title text-warning">{{ p.name }}</h5>
+              <p class="card-text text-secondary">{{ p.short_desc }}</p>
+              <h6 class="text-light fw-bold">{{ p.price_per_100 }} ₽/100г</h6>
+            </div>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Модалка отзыва -->
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark text-light border border-warning">
+      <div class="modal-header">
+        <h5 class="modal-title">Оставить отзыв</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="reviewForm">
+          <div class="mb-3">
+            <label class="form-label">Имя</label>
+            <input class="form-control bg-secondary text-light" id="reviewName" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Отзыв</label>
+            <textarea class="form-control bg-secondary text-light" id="reviewText" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-warning w-100">Отправить</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function openReview(){
+  new bootstrap.Modal(document.getElementById('reviewModal')).show();
+}
+
+document.getElementById('reviewForm').onsubmit = async (e)=>{
+  e.preventDefault();
+  const data = {
+    name: document.getElementById('reviewName').value,
+    text: document.getElementById('reviewText').value
+  };
+  const res = await fetch('/api/review', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(data)
+  });
+  const json = await res.json();
+  if(json.status==='ok'){
+    alert('🙏 Спасибо за отзыв!');
+    bootstrap.Modal.getInstance(document.getElementById('reviewModal')).hide();
+  }
+};
+</script>
+</body>
+</html>

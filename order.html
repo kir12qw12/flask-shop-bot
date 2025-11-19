@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Заказать {{ product[1] }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Заказать: {{ product[1] }}</h1>
+    <img src="{{ url_for('static', filename='img/' + product[5]) }}" alt="{{ product[1] }}" width="300">
+    <p>{{ product[2] }}</p>
+    <form method="POST">
+        <label>Имя:</label><br>
+        <input type="text" name="name" required><br><br>
+
+        <label>Телефон:</label><br>
+        <input type="text" name="phone" required><br><br>
+
+        <label>Выберите вес (г):</label><br>
+        <select name="weight" required>
+            {% for w in weights %}
+                <option value="{{ w }}">{{ w }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label>Комментарий:</label><br>
+        <textarea name="comment"></textarea><br><br>
+
+        <button type="submit">Отправить заказ</button>
+    </form>
+</body>
+</html>
