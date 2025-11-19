@@ -1,0 +1,38 @@
+BOT_TOKEN  8274106045:AAHaGP4NrGl_ogP8eWUnNWI25Q-zyycswm0
+
+/project_root
+│
+├── app.py                  # Основной Flask + Telegram-бот
+├── shop.db                 # База данных SQLite
+├── requirements.txt        # Зависимости: flask, pyTelegramBotAPI и др.
+│
+├── /templates              # HTML-шаблоны
+│   ├── index.html          # Главная страница с карточками товаров
+│   ├── product.html        # Страница конкретного товара
+│   ├── order.html          # Форма заказа товара
+│   ├── order_success.html  # Страница после успешного заказа
+│   └── reviews.html        # Страница отзывов с комментариями и звёздами
+│
+├── /static                 # Статика: CSS, JS, картинки
+│   ├── /css
+│   │   └── style.css       # Стили для сайта
+│   ├── /js
+│   │   └── main.js         # JS: динамика отзывов, анимации
+│   └── /img
+│       ├── default.png     # Картинка по умолчанию для товара
+│       └── ...             # Другие картинки товаров
+│
+└── /uploads (опционально)  # Если будешь хранить фото, присланные через Telegram
+
+#for chat_id in sessions.keys():
+    bot.send_message(
+        chat_id,
+        f"🛒 Новый заказ!\n\n"
+        f"Товар: {prod_name}\n"
+        f"Вес: {data['weight']} г\n"
+        f"Количество упаковок: {data['quantity']}\n"
+        f"Имя: {data['name']}\n"
+        f"Телефон: {data['phone']}\n"
+        f"Комментарий: {data.get('comment','-')}"
+    )
+
